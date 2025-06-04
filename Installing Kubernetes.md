@@ -56,4 +56,74 @@ Lightweight Kubernetes cluster for local, cloud, edge, IoT deployments, original
 
 Minikube is an easy and flexible method to create a local Kubernetes setup. We will be using it extensively in this course to manage certain aspects of a Kubernetes cluster, while taking advantage of several automated features designed to simplify the user interaction with the Kubernetes environment and the containerized applications deployed to the cluster.
 
+# Installing Production Clusters with Deployment Tools
 
+When it comes to production ready solutions, there are several recommended tools for Kubernetes cluster bootstrapping and a few that are also capable of provisioning the necessary hosts on the underlying infrastructure.
+
+### kubeadm
+
+kubeadm is a first-class citizen of the Kubernetes ecosystem. It is a secure and recommended method to bootstrap a multi-node production ready Highly Available Kubernetes cluster, on-premises or in the cloud. kubeadm can also bootstrap a single-node cluster for learning. It has a set of building blocks to set up the cluster, but it is easily extendable to add more features. Please note that kubeadm does not support the provisioning of hosts - they should be provisioned separately with a tool of our choice.
+
+### kubespray
+
+kubespray (formerly known as kargo) allows us to install Highly Available production ready Kubernetes clusters on AWS, GCP, Azure, OpenStack, vSphere, or bare metal. kubespray is based on Ansible, and is available on most Linux distributions. Explore the kubespray project for more details.
+
+### kops
+
+kops enables us to create, upgrade, and maintain production-grade, Highly Available Kubernetes clusters from the command line. It can provision the required infrastructure as well. Currently, AWS and GCE are officially supported. Support for DigitalOcean and OpenStack is in beta, while Azure is in alpha support, and other platforms are planned for the future. Explore the kops project for more details.
+
+# Production Clusters from Certified Solutions Providers
+
+The growing popularity of Kubernetes accelerated its adoption by many cloud services providers together with hosted platforms of certified Kubernetes distributions. There are well over 200 managed certified Kubernetes services providers today, as many more organizations became Kubernetes partners, joining the list of initial providers of hosted Kubernetes solutions:
+
+### Hosted Solutions
+
+Hosted Solutions providers fully manage the provided software stack, while the user pays hosting and management charges. Popular vendors providing hosted solutions for Kubernetes are (listed in alphabetical order):
+
+    - Alibaba Cloud Container Service for Kubernetes (ACK)
+    - Amazon Elastic Kubernetes Service (EKS)
+    - Azure Kubernetes Service (AKS)
+    - DigitalOcean Kubernetes (DOKS)
+    - Google Kubernetes Engine (GKE)
+    - IBM Cloud Kubernetes Service
+    - Oracle Container Engine for Kubernetes (OKE)
+    - Red Hat OpenShift
+    - VMware Tanzu Kubernetes Grid
+
+### Partners
+
+Additional Partners providing managed Kubernetes services and platforms (listed in alphabetical order):
+
+    - Aqua Security
+    - Canonical
+    - D2IQ
+    - Dell Technologies Consulting
+    - Deloitte
+    - Fujitsu
+    - GitLab
+    - HPE
+    - Kubermatic
+    - Kublr
+    - Mirantis
+    - Platform9
+    - SAP
+    - SUSE
+    - Sysdig
+    - Weaveworks
+
+### Turnkey Cloud Solutions
+
+Turnkey Cloud Solutions install production ready Kubernetes clusters on cloud infrastructure:
+
+    - Linode Kubernetes Engine
+    - Nirmata Managed Kubernetes
+    - Nutanix Karbon
+    - Vultr Kubernetes Engine
+
+### Kubernetes on Windows
+
+The Windows operating system plays a key role in running and managing enterprise applications and services. With that in mind, the Kubernetes community worked very hard to bring Windows support to Kubernetes.
+
+With the release of Kubernetes v1.14, Windows was successfully introduced as a supported production ready operating system only for worker nodes of a Kubernetes cluster. This enabled Kubernetes to support the deployment of Windows containers in the cluster, either as a dedicated Windows cluster, or a hybrid cluster with Windows nodes running alongside Linux nodes. Keep in mind, however, that the control plane nodes are limited to running on Linux only, with no plans to extend the support to Windows control plane nodes.
+
+With Windows Server 2019 and Windows Server 2022 being the only Windows OS supported by Kubernetes, the same container workload orchestration tool can schedule and deploy both Linux and Windows containers in the same cluster. The user is responsible to configure the workload scheduling according to the expected OS, that is to schedule Linux and Windows containers on nodes with their respective operating systems when nodes of each OS coexist in the same Kubernetes cluster.
