@@ -79,7 +79,7 @@ Also, in a multi-worker Kubernetes cluster, the network traffic between client u
 
 A worker node has the following components: container runtime, node agent - kubelet, kubelet - CRI shims, proxy - kube-proxy, add-ons (for DNS, observability components such as dashboards, cluster-level monitoring and logging, and device plugins).
 
-- Container runtime
+### Container runtime
 
 Although Kubernetes is described as a "container orchestration engine", it lacks the capability to directly handle and run containers. In order to manage a container's lifecycle, Kubernetes requires a container runtime on the node where a Pod and its containers are to be scheduled. A runtime is required on each node of a Kubernetes cluster, both control plane and worker. The [recommendation](https://kubernetes.io/docs/setup/) is to run the Kubernetes control plane components as containers, hence the necessity of a runtime on the control plane nodes. Kubernetes supports several container runtimes:
 
@@ -95,7 +95,7 @@ Although Kubernetes is described as a "container orchestration engine", it lacks
   - [Mirantis Container Runtime](https://www.mirantis.com/software/mirantis-container-runtime/)
     Formerly known as the Docker Enterprise Edition.
 
-- Node agent - kubelet
+### Node agent - kubelet
 
 The kubelet is an agent running on each node, control plane and workers, and it communicates with the control plane. It receives Pod definitions, primarily from the API Server, and interacts with the container runtime on the node to run containers associated with the Pod. It also monitors the health and resources of Pods running containers.
 
@@ -104,3 +104,50 @@ The kubelet connects to container runtimes through a plugin based interface - th
 <img width="684" alt="image" src="https://github.com/user-attachments/assets/e0b45ed6-ba98-493f-8f65-791faeeb74e3" />
 
 As shown above, the kubelet acting as grpc client connects to the CRI shim acting as grpc server to perform container and image operations. The CRI implements two services: ImageService and RuntimeService. The ImageService is responsible for all the image-related operations, while the RuntimeService is responsible for all the Pod and container-related operations.
+
+### kubelet - CRI shims
+
+Originally the kubelet agent supported only a couple of container runtimes, first the Docker Engine followed by rkt, through a unique interface model integrated directly in the kubelet source code. However, this approach was not intended to last forever even though it was especially beneficial for Docker. In time, Kubernetes started migrating towards a standardized approach to container runtime integration by introducing the CRI. Kubernetes adopted a decoupled and flexible method to integrate with various container runtimes without the need to recompile its source code. Any container runtime that implements the CRI could be used by Kubernetes to manage containers.
+
+Shims are Container Runtime Interface (CRI) implementations, interfaces or adapters, specific to each container runtime supported by Kubernetes. Below we present some examples of CRI shims:
+
+- cri-containerd
+
+cri-containerd allows containers to be directly created and managed with containerd at kubelet's request:
+
+<img width="682" alt="image" src="https://github.com/user-attachments/assets/852df13c-1896-466d-9646-cab3be6aad9e" />
+
+- CRI-O
+  
+CRI-O enables the use of any Open Container Initiative (OCI) compatible runtime with Kubernetes, such as runC:
+
+<img width="654" alt="image" src="https://github.com/user-attachments/assets/c666d0e7-a8c8-4d3d-8c45-c1764692a472" />
+
+- dockershim and cri-dockerd
+  
+Before Kubernetes release v1.24 the dockershim allowed containers to be created and managed by invoking the Docker Engine and its internal runtime containerd. Due to Docker Engine's popularity, this shim has been the default interface used by kubelet. However, starting with Kubernetes release v1.24, the dockershim is no longer being maintained by the Kubernetes project, its specific code is removed from kubelet source code, thus will no longer be supported by the kubelet node agent of Kubernetes. As a result, Docker, Inc., and Mirantis have agreed to introduce and maintain a replacement adapter, cri-dockerd that would ensure that the Docker Engine will continue to be a container runtime option for Kubernetes, in addition to the Mirantis Container Runtime (MCR). The introduction of cri-dockerd also ensures that both Docker Engine and MCR follow the same standardized integration method as the CRI-compatible runtimes.
+
+<img width="697" alt="image" src="https://github.com/user-attachments/assets/e3a1c185-73ed-4acf-acc3-7301b7028a88" />
+
+### Proxy - kube-proxy
+
+The kube-proxy is the network agent which runs on each node, control plane and workers, responsible for dynamic updates and maintenance of all networking rules on the node. It abstracts the details of Pods networking and forwards connection requests to the containers in the Pods.
+
+The kube-proxy is responsible for TCP, UDP, and SCTP stream forwarding or random forwarding across a set of Pod backends of an application, and it implements forwarding rules defined by users through Service API objects.
+
+The kube-proxy node agent operates in conjunction with the iptables of the node. Iptables is a firewall utility created for the Linux OS that can be managed by users through a CLI utility of the same name. The iptables utility is available for and pre-installed on many Linux distributions.
+
+### Add-ons
+
+Add-ons are cluster features and functionality not yet available in Kubernetes, therefore implemented through 3rd-party plugins and services.
+
+  - DNS
+    Cluster DNS is a DNS server required to assign DNS records to Kubernetes objects and resources.
+  - Dashboard
+    A general purpose web-based user interface for cluster management.
+  - Monitoring
+    Collects cluster-level container metrics and saves them to a central data store.
+  - Logging
+    Collects cluster-level container logs and saves them to a central log store for analysis.
+  - Device Plugins
+    For system hardware resources, such as GPU, FPGA, high-performance NIC, to be advertised by the node to application pods.
