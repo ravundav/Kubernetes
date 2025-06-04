@@ -69,3 +69,38 @@ Keep in mind however, that the leader/followers hierarchy is distinct from the p
 
 etcd is written in the Go programming language. In Kubernetes, besides storing the cluster state, etcd is also used to store configuration details such as subnets, ConfigMaps, Secrets, etc.
 
+# Worker Node Overview
+
+A worker node provides a running environment for client applications. These applications are microservices running as application containers. In Kubernetes the application containers are encapsulated in Pods, controlled by the cluster control plane agents running on the control plane node. Pods are scheduled on worker nodes, where they find required compute, memory and storage resources to run, and networking to talk to each other and the outside world. A Pod is the smallest scheduling work unit in Kubernetes. It is a logical collection of one or more containers scheduled together, and the collection can be started, stopped, or rescheduled as a single unit of work.
+
+Also, in a multi-worker Kubernetes cluster, the network traffic between client users and the containerized applications deployed in Pods is handled directly by the worker nodes, and is not routed through the control plane node.
+
+# Worker Node Components
+
+A worker node has the following components: container runtime, node agent - kubelet, kubelet - CRI shims, proxy - kube-proxy, add-ons (for DNS, observability components such as dashboards, cluster-level monitoring and logging, and device plugins).
+
+- Container runtime
+
+Although Kubernetes is described as a "container orchestration engine", it lacks the capability to directly handle and run containers. In order to manage a container's lifecycle, Kubernetes requires a container runtime on the node where a Pod and its containers are to be scheduled. A runtime is required on each node of a Kubernetes cluster, both control plane and worker. The [recommendation](https://kubernetes.io/docs/setup/) is to run the Kubernetes control plane components as containers, hence the necessity of a runtime on the control plane nodes. Kubernetes supports several container runtimes:
+
+  - [CRI-O](https://cri-o.io/)
+    A lightweight container runtime for Kubernetes, supporting quay.io and Docker Hub image registries.
+    
+  - [containerd](https://containerd.io/)
+    A simple, robust, and portable container runtime.
+    
+  - [Docker Engine](https://www.docker.com/)
+    A popular and complex container platform which uses containerd as a container runtime.
+    
+  - [Mirantis Container Runtime](https://www.mirantis.com/software/mirantis-container-runtime/)
+    Formerly known as the Docker Enterprise Edition.
+
+- Node agent - kubelet
+
+The kubelet is an agent running on each node, control plane and workers, and it communicates with the control plane. It receives Pod definitions, primarily from the API Server, and interacts with the container runtime on the node to run containers associated with the Pod. It also monitors the health and resources of Pods running containers.
+
+The kubelet connects to container runtimes through a plugin based interface - the Container Runtime Interface (CRI). The CRI consists of protocol buffers, gRPC API, libraries, and additional specifications and tools. In order to connect to interchangeable container runtimes, kubelet uses a CRI shim, an application which provides a clear abstraction layer between kubelet and the container runtime.
+
+<img width="684" alt="image" src="https://github.com/user-attachments/assets/e0b45ed6-ba98-493f-8f65-791faeeb74e3" />
+
+As shown above, the kubelet acting as grpc client connects to the CRI shim acting as grpc server to perform container and image operations. The CRI implements two services: ImageService and RuntimeService. The ImageService is responsible for all the image-related operations, while the RuntimeService is responsible for all the Pod and container-related operations.
